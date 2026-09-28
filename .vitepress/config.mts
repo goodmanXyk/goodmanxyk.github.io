@@ -1,4 +1,34 @@
 import { defineConfig } from 'vitepress'
+import { readFileSync, readdirSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)))
+
+function contentItems(section: string) {
+  const sectionRoot = join(projectRoot, section)
+  const paths: string[] = []
+  const visit = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const absolute = join(directory, entry.name)
+      if (entry.isDirectory()) visit(absolute)
+      else if (entry.isFile() && entry.name.endsWith('.md')) paths.push(absolute)
+    }
+  }
+  visit(sectionRoot)
+
+  return paths
+    .map((absolute) => {
+      const file = relative(projectRoot, absolute).replaceAll('\\', '/')
+      const markdown = readFileSync(absolute, 'utf8')
+      const title = markdown.match(/^title:\s*(?:"([^"]*)"|'([^']*)'|(.+))$/m)
+        || markdown.match(/^#\s+(.+)$/m)
+      const label = title ? (title[1] || title[2] || title[3]).trim() : file.split('/').at(-1)!.replace(/\.md$/, '')
+      const route = `/${file.replace(/\.md$/, '').replace(/\/index$/, '')}${file.endsWith('/index.md') ? '/' : ''}`
+      return { text: label, link: route }
+    })
+    .sort((a, b) => Number(b.link.endsWith('/')) - Number(a.link.endsWith('/')) || a.text.localeCompare(b.text, 'zh-CN'))
+}
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -20,28 +50,25 @@ export default defineConfig({
       '/notes/': [
         {
           text: '知识笔记',
-          items: [
-            { text: '笔记总览', link: '/notes/' },
-            { text: '前端基础', link: '/notes/frontend/' },
-          ],
+          items: contentItems('notes'),
         },
       ],
       '/tutorials/': [
         {
           text: '循序渐进',
-          items: [
-            { text: '教学总览', link: '/tutorials/' },
-            { text: '从零开始认识网页', link: '/tutorials/first-webpage' },
-          ],
+          items: contentItems('tutorials'),
         },
       ],
       '/demos/': [
         {
           text: '动手实验',
-          items: [
-            { text: '实验总览', link: '/demos/' },
-            { text: '第一个交互示例', link: '/demos/first-demo' },
-          ],
+          items: contentItems('demos'),
+        },
+      ],
+      '/guide/': [
+        {
+          text: '站点页面',
+          items: contentItems('guide'),
         },
       ],
     },

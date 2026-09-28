@@ -6,9 +6,15 @@
   "scripts": {
     "docs:dev": "vitepress dev .",
     "docs:build": "vitepress build .",
-    "docs:preview": "vitepress preview ."
+    "docs:preview": "vitepress preview .",
+    "editor:dev": "node node_modules/vite/bin/vite.js --config admin/vite.config.js",
+    "editor:build": "node node_modules/vite/bin/vite.js build --config admin/vite.config.js",
+    "editor:deploy": "npm run editor:build && npx wrangler deploy --config editor-service/wrangler.jsonc"
   },
   "devDependencies": {
     "vitepress": "1.6.4"
+  },
+  "dependencies": {
+    "@toast-ui/editor": "^3.2.2"
   }
 }

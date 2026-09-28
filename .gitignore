@@ -1,7 +1,8 @@
 node_modules/
 .vitepress/cache/
 .vitepress/dist/
+editor-service/public/
 .DS_Store
 *.log
 .env*.local
-
+*.pem

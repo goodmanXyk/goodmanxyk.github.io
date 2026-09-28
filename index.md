@@ -20,15 +20,15 @@ features:
   - title: 知识笔记
     details: 把零散的学习整理成清晰、可检索、能复用的笔记。
     link: /notes/
-    linkText: 打开笔记 →
+    linkText: 打开笔记
   - title: 动手实验
     details: 小型 Demo、交互原型和实现过程，都在这里留下记录。
     link: /demos/
-    linkText: 浏览实验 →
+    linkText: 浏览实验
   - title: 教学内容
     details: 从基础开始，把复杂概念拆解成可以跟着完成的步骤。
     link: /tutorials/
-    linkText: 开始学习 →
+    linkText: 开始学习
 ---
 
 <section class="home-latest">
@@ -57,8 +57,3 @@ features:
     </a>
   </div>
 </section>
-
-<div class="home-intro">
-  <span class="eyebrow">A SPACE FOR LEARNING IN PUBLIC</span>
-  <p>这个空间会慢慢长成一份长期使用的个人知识库。<br>先从正在学习的内容开始，再一点一点补上作品与教程。</p>
-</div>

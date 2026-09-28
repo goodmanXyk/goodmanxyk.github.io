@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="540" viewBox="0 0 720 540" fill="none">
+  <defs>
+    <linearGradient id="glow" x1="124" y1="50" x2="600" y2="504" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9BCBB3" stop-opacity=".27"/>
+      <stop offset="1" stop-color="#D58C54" stop-opacity=".12"/>
+    </linearGradient>
+    <linearGradient id="card" x1="190" y1="76" x2="550" y2="432" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#26352D"/>
+      <stop offset="1" stop-color="#1B2520"/>
+    </linearGradient>
+    <filter id="shadow" x="36" y="18" width="654" height="514" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="18"/>
+      <feGaussianBlur stdDeviation="14"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix values="0 0 0 0 0.02 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.28 0"/>
+      <feBlend in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#A9C9B6" fill-opacity=".22"/>
+    </pattern>
+  </defs>
+
+  <circle cx="367" cy="270" r="218" fill="url(#glow)"/>
+  <circle cx="367" cy="270" r="209" stroke="#9BCBB3" stroke-opacity=".17" stroke-dasharray="3 10"/>
+  <circle cx="367" cy="270" r="164" stroke="#9BCBB3" stroke-opacity=".12"/>
+  <path d="M118 370C210 363 222 282 299 282M439 189C516 180 515 127 584 127M449 355C509 355 529 404 592 404" stroke="#9BCBB3" stroke-opacity=".4" stroke-width="1.5" stroke-dasharray="4 7"/>
+  <circle cx="119" cy="370" r="5" fill="#9BCBB3"/>
+  <circle cx="584" cy="127" r="5" fill="#D58C54"/>
+  <circle cx="592" cy="404" r="5" fill="#9BCBB3"/>
+
+  <g filter="url(#shadow)">
+    <rect x="142" y="76" width="424" height="350" rx="27" fill="url(#card)" stroke="#90BAA0" stroke-opacity=".3"/>
+    <rect x="165" y="99" width="378" height="304" rx="18" fill="url(#dots)" fill-opacity=".45"/>
+    <rect x="171" y="106" width="142" height="27" rx="13.5" fill="#31473A"/>
+    <circle cx="187" cy="119.5" r="4" fill="#9BCBB3"/>
+    <text x="199" y="124" fill="#C5DDD0" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="1.4">FIELD NOTES / 2026</text>
+    <text x="171" y="181" fill="#E6EDE8" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="31" font-weight="600">学到的，留下来</text>
+    <text x="171" y="211" fill="#A9B9AF" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="14">把问题拆开，把经验写清楚。</text>
+
+    <rect x="171" y="244" width="352" height="1" fill="#DAE8DF" fill-opacity=".13"/>
+    <circle cx="185" cy="273" r="7" fill="#9BCBB3" fill-opacity=".2"/>
+    <path d="M182 273h6m-3-3v6" stroke="#B9E4D0" stroke-width="1.3" stroke-linecap="round"/>
+    <text x="203" y="277" fill="#DBE7DF" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500">知识笔记</text>
+    <rect x="203" y="290" width="242" height="5" rx="2.5" fill="#DDE8DF" fill-opacity=".17"/>
+    <rect x="203" y="302" width="190" height="5" rx="2.5" fill="#DDE8DF" fill-opacity=".1"/>
+
+    <circle cx="185" cy="334" r="7" fill="#D58C54" fill-opacity=".2"/>
+    <path d="m182 334 2 2 4-4" stroke="#F0B77F" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="203" y="338" fill="#DBE7DF" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="500">动手实验</text>
+    <rect x="203" y="351" width="277" height="5" rx="2.5" fill="#DDE8DF" fill-opacity=".17"/>
+    <rect x="203" y="363" width="220" height="5" rx="2.5" fill="#DDE8DF" fill-opacity=".1"/>
+
+    <rect x="171" y="385" width="90" height="23" rx="11.5" fill="#9BCBB3"/>
+    <text x="190" y="400" fill="#193327" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing=".5">KEEP LEARNING</text>
+  </g>
+
+  <g>
+    <rect x="454" y="337" width="205" height="107" rx="19" fill="#33473A" stroke="#9BCBB3" stroke-opacity=".35"/>
+    <circle cx="478" cy="363" r="11" fill="#9BCBB3" fill-opacity=".18"/>
+    <path d="m474 363 3 3 6-7" stroke="#B9E4D0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="498" y="367" fill="#C7DDD0" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="1">LEARNING PATH</text>
+    <text x="474" y="399" fill="#F0F5F1" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="15" font-weight="600">从理解，到实践</text>
+    <rect x="474" y="414" width="160" height="4" rx="2" fill="#DDE8DF" fill-opacity=".2"/>
+    <rect x="474" y="414" width="108" height="4" rx="2" fill="#9BCBB3"/>
+  </g>
+
+  <g>
+    <rect x="50" y="269" width="157" height="72" rx="17" fill="#29372F" stroke="#9BCBB3" stroke-opacity=".28"/>
+    <rect x="68" y="286" width="25" height="25" rx="8" fill="#D58C54" fill-opacity=".18"/>
+    <path d="m76 293-4 5 4 5m7-10 4 5-4 5m-3-12-2 14" stroke="#F0B77F" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="103" y="297" fill="#DDE8DF" font-family="'Noto Sans SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="600">交互 Demo</text>
+    <text x="103" y="316" fill="#A9B9AF" font-family="Arial,sans-serif" font-size="10">BUILD · SHARE · REPEAT</text>
+  </g>
+</svg>

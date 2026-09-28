@@ -144,18 +144,10 @@ input {
   text-align: center;
 }
 
-.home-intro .eyebrow,
 .home-latest .eyebrow {
   color: var(--vp-c-brand-1);
   font: 700 11px/1.4 var(--vp-font-family-mono);
   letter-spacing: 0.15em;
-}
-
-.home-intro p {
-  margin: 14px 0 0;
-  color: var(--vp-c-text-2);
-  font-size: 15px;
-  line-height: 1.9;
 }
 
 .home-latest {

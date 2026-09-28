@@ -202,8 +202,16 @@ input {
   border-radius: 18px;
   background: color-mix(in srgb, var(--vp-c-bg-soft) 70%, transparent);
   color: inherit;
+  font-family: var(--vp-font-family-base);
   text-decoration: none;
   transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.vp-doc a.home-latest-card,
+.vp-doc a.home-latest-card:hover {
+  color: inherit;
+  font-family: var(--vp-font-family-base);
+  text-decoration: none;
 }
 
 .home-latest-card:hover {
@@ -213,8 +221,11 @@ input {
 
 .home-latest-card .category {
   color: var(--vp-c-brand-1);
-  font: 650 11px/1.4 var(--vp-font-family-mono);
-  letter-spacing: 0.08em;
+  font-family: var(--vp-font-family-base);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
@@ -231,6 +242,10 @@ input {
 }
 
 @media (min-width: 960px) {
+  .VPNavBar .container {
+    max-width: none;
+  }
+
   .VPHero .container,
   .VPFeatures .container,
   .VPHomeContent .container {
@@ -240,6 +255,10 @@ input {
   .VPHero.has-image .main {
     width: 52%;
     max-width: 700px;
+  }
+
+  .VPHero.has-image .text {
+    max-width: none;
   }
 
   .VPHero.has-image .image-container {

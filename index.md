@@ -1,10 +1,10 @@
 ---
 layout: home
-title: Goodman · 学习与实践
+title: 万物折腾局
 titleTemplate: false
 hero:
   name: 学习、记录，<br>再把想法做出来。
-  text: Goodman ·<br>学习与实践
+  text: 万物折腾局
   tagline: 这里收藏技术笔记、动手实验与教学内容。让每一次探索，都留下可以继续生长的记录。
   image:
     src: /hero-knowledge.svg

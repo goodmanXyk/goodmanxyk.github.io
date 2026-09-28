@@ -1,4 +1,4 @@
-# Goodman · 学习与实践
+# 万物折腾局
 
 个人知识库网站，基于 VitePress 与 GitHub Pages。
 

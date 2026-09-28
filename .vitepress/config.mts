@@ -44,6 +44,7 @@ export default defineConfig({
       { text: '知识笔记', link: '/notes/' },
       { text: '动手实验', link: '/demos/' },
       { text: '教学内容', link: '/tutorials/' },
+      { text: '内容编辑', link: 'https://wanwu-editor.goodmanxyk-github-io.workers.dev' },
       { text: '关于', link: '/about' },
     ],
     sidebar: {

@@ -2,13 +2,13 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: 'Goodman · 学习与实践',
-  description: '关于技术、工具与实践的个人知识库。',
+  title: '万物折腾局',
+  description: '杂学开发者的笔记、实验与教程。',
   base: '/',
   cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
-    siteTitle: 'GOODMAN<span class="brand-dot">.</span>',
+    siteTitle: '万物折腾局',
     nav: [
       { text: '首页', link: '/' },
       { text: '知识笔记', link: '/notes/' },
@@ -67,7 +67,7 @@ export default defineConfig({
     ],
     footer: {
       message: '把好奇心留下，把想法做出来。',
-      copyright: '© 2026 Goodman · 学习与实践',
+      copyright: '© 2026 万物折腾局',
     },
     outline: { label: '本页目录' },
     docFooter: { prev: '上一篇', next: '下一篇' },

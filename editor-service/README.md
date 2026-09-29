@@ -44,4 +44,4 @@ npx wrangler secret put SESSION_SECRET --config editor-service/wrangler.jsonc
 
 ## 编辑范围
 
-后台目前允许编辑 `notes/`、`demos/`、`tutorials/`、`guide/` 中的 Markdown 页面和 `about.md`。分类首页文件（例如 `notes/index.md`）会保护起来，避免可视化编辑器改坏页面结构或运行代码。交互 Demo 可以查看源文件，也可以在确认后删除。编辑时可打开当前内容预览；保存或删除会直接提交到 `main`，触发现有 GitHub Pages 工作流。
+后台允许编辑 `notes/`、`demos/`、`tutorials/`、`guide/` 中的 Markdown 页面、三个栏目大纲（`notes/index.md`、`demos/index.md`、`tutorials/index.md`）和 `about.md`。栏目大纲可以编辑但不能从工作台删除，以保留栏目入口。带 `<script setup>` 的交互 Demo 不可视化编辑，但可以在确认后删除。编辑时可预览当前内容；保存或删除会提交到 `main`，触发现有 GitHub Pages 工作流。删除文章前，请同步移除大纲中指向该文章的链接，避免死链阻止网站发布。

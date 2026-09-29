@@ -90,12 +90,15 @@ function cleanPath(path) {
   const normalized = path.replace(/^\/+/, '')
   if (!normalized || normalized.includes('..') || normalized.includes('\\') || normalized.includes('\0')) return ''
   if (!normalized.endsWith('.md')) return ''
-  if (/^(notes|demos|tutorials)\/index\.md$/i.test(normalized)) return ''
   if (normalized.toLowerCase() === 'guide/index.md') return ''
 
   const allowedDirectory = /^(notes|demos|tutorials)\/.+\.md$/i.test(normalized)
   const allowedPage = normalized === 'about.md' || /^guide\/.+\.md$/i.test(normalized)
   return allowedDirectory || allowedPage ? normalized : ''
+}
+
+function isSectionOutline(path) {
+  return /^(notes|demos|tutorials)\/index\.md$/i.test(path)
 }
 
 function encodedPath(path) {
@@ -227,6 +230,7 @@ async function handleApi(request, env, url) {
 
     const path = cleanPath(url.searchParams.get('path'))
     if (!path) return json({ error: '这个文件不在可删除范围内。' }, 400)
+    if (isSectionOutline(path)) return json({ error: '分类大纲可以编辑，但不能从工作台删除。' }, 403)
 
     let body
     try { body = await request.json() } catch { return json({ error: '删除校验信息无效，请重新打开文章后再试。' }, 400) }

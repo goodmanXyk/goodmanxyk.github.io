@@ -200,7 +200,19 @@ function updateFrontmatter(frontmatter, title, description) {
 }
 
 function pathTitle(path) {
-  return path.split('/').at(-1).replace(/\.md$/i, '').replace(/[-_]/g, ' ')
+  const parts = path.split('/')
+  const fileName = parts.at(-1)
+  const sectionNames = { notes: '知识笔记', demos: '动手实验', tutorials: '教学内容' }
+  if (fileName.toLowerCase() === 'index.md') {
+    const section = parts[0].toLowerCase()
+    if (parts.length === 2 && sectionNames[section]) return `${sectionNames[section]}大纲`
+    return `${parts.at(-2).replace(/[-_]/g, ' ')}分类大纲`
+  }
+  return fileName.replace(/\.md$/i, '').replace(/[-_]/g, ' ')
+}
+
+function isSectionOutline(path) {
+  return /^(notes|demos|tutorials)\/index\.md$/i.test(path)
 }
 
 function currentSection() {
@@ -322,7 +334,7 @@ function previewCurrentContent() {
 
 async function deleteSelectedEntry() {
   const path = state.selectedPath
-  if (!path || state.isNew) return
+  if (!path || state.isNew || isSectionOutline(path)) return
 
   const title = pathTitle(path)
   const hasUnsavedChanges = state.editor
@@ -375,7 +387,7 @@ async function showEditor(documentData, isNew = false) {
   document.querySelector('#slug-row').hidden = !isNew
   document.querySelector('#slug-input').value = ''
   document.querySelector('#preview-link').hidden = isNew
-  document.querySelector('#delete-button').hidden = isNew
+  document.querySelector('#delete-button').hidden = isNew || isSectionOutline(documentData.path)
   document.querySelector('#save-button').disabled = false
   setWorkspaceNotice('')
   setStatus('')
@@ -466,7 +478,7 @@ async function saveDocument(event) {
     document.querySelector('#document-kind').textContent = currentSection().label
     document.querySelector('#slug-row').hidden = true
     document.querySelector('#preview-link').hidden = false
-    document.querySelector('#delete-button').hidden = false
+    document.querySelector('#delete-button').hidden = isSectionOutline(path)
     const previewPath = path.replace(/\.md$/i, '').replace(/\/index$/, '/')
     document.querySelector('#preview-link').href = `https://goodmanxyk.github.io/${previewPath.replace(/^\//, '')}`
     setStatus('已保存。网站正在自动重新构建，稍等片刻即可查看。', 'success')

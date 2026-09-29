@@ -219,6 +219,45 @@ async function handleApi(request, env, url) {
       return json({ error: errorData.message || 'GitHub 保存失败，请刷新后重试。' }, saved.status)
     }
     const result = await saved.json()
+    return json({ ok: true, path, sha: result.content?.sha, commit: result.commit?.sha })
+  }
+
+  if (request.method === 'DELETE' && url.pathname === '/api/content') {
+    if (request.headers.get('Origin') !== url.origin) return json({ error: '来源校验失败。' }, 403)
+
+    const path = cleanPath(url.searchParams.get('path'))
+    if (!path) return json({ error: '这个文件不在可删除范围内。' }, 400)
+
+    let body
+    try { body = await request.json() } catch { return json({ error: '删除校验信息无效，请重新打开文章后再试。' }, 400) }
+    if (typeof body.sha !== 'string' || !body.sha) {
+      return json({ error: '缺少文章版本信息，请重新打开文章后再试。' }, 400)
+    }
+
+    const contentUrl = await githubContentsPath(path, env)
+    const ref = encodeURIComponent(env.GITHUB_BRANCH || 'main')
+    const current = await githubFetch(`${contentUrl}?ref=${ref}`, session.accessToken)
+    if (current.status === 404) return json({ error: '这篇内容已不存在，请刷新列表。' }, 404)
+    if (!current.ok) return json({ error: '读取文章版本失败，请稍后再试。' }, current.status)
+
+    const file = await current.json()
+    if (file.sha !== body.sha) {
+      return json({ error: '这篇内容在打开后已更新。请刷新并重新打开文章，再确认删除。' }, 409)
+    }
+    const deleted = await githubFetch(contentUrl, session.accessToken, {
+      method: 'DELETE',
+      body: JSON.stringify({
+        message: `Delete ${path} via Wanwu Editor`,
+        sha: file.sha,
+        branch: env.GITHUB_BRANCH || 'main',
+      }),
+    })
+    if (!deleted.ok) {
+      const errorData = await deleted.json().catch(() => ({}))
+      return json({ error: errorData.message || 'GitHub 删除失败，请刷新后重试。' }, deleted.status)
+    }
+
+    const result = await deleted.json()
     return json({ ok: true, path, commit: result.commit?.sha })
   }
 

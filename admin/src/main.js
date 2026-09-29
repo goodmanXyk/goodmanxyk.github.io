@@ -248,6 +248,10 @@ function escapeHtml(value) {
   })[char])
 }
 
+function normalizeEditorMarkdown(markdown) {
+  return String(markdown).replace(/^[\u00a0 ]+/gm, (indentation) => indentation.replace(/\u00a0/g, ' '))
+}
+
 async function loadEntries() {
   const list = document.querySelector('#entry-list')
   list.innerHTML = '<p class="list-empty">正在载入内容…</p>'
@@ -339,7 +343,8 @@ async function deleteSelectedEntry() {
   const title = pathTitle(path)
   const hasUnsavedChanges = state.editor
     && state.document?.body !== undefined
-    && state.editor.getMarkdown() !== state.document.body
+    && normalizeEditorMarkdown(state.editor.getMarkdown()).trim()
+      !== normalizeEditorMarkdown(state.document.body).trim()
   const confirmed = window.confirm(
     `确定删除“${title}”吗？${hasUnsavedChanges ? '\n\n当前未保存的修改也会丢弃。' : ''}\n\n这篇内容会从 GitHub 仓库中移除，并在网站重新构建后下线。你可以从 GitHub 提交历史恢复。`,
   )
@@ -458,7 +463,8 @@ async function saveDocument(event) {
   }
 
   const frontmatter = updateFrontmatter(state.document.frontmatter || '', title, description)
-  let body = state.editor.getMarkdown().trim()
+  const editorMarkdown = normalizeEditorMarkdown(state.editor.getMarkdown()).trim()
+  let body = editorMarkdown
   if (/^#\s.+$/m.test(body)) body = body.replace(/^#\s.+$/m, `# ${title}`)
   else body = `# ${title}${body ? `\n\n${body}` : ''}`
   const markdown = `---\n${frontmatter}\n---\n\n${body}\n`
@@ -471,7 +477,7 @@ async function saveDocument(event) {
       method: 'PUT',
       body: JSON.stringify({ path, content: markdown, create: state.isNew }),
     })
-    state.document = { path, sha, title, description, body: state.editor.getMarkdown(), frontmatter }
+    state.document = { path, sha, title, description, body: editorMarkdown, frontmatter }
     state.isNew = false
     state.selectedPath = path
     document.querySelector('#form-heading').textContent = '编辑内容'

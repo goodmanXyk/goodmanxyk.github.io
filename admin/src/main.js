@@ -56,6 +56,7 @@ function renderShell() {
         </aside>
 
         <section class="editor-panel" id="editor-panel">
+          <div class="workspace-notice" id="workspace-notice" role="status" aria-live="polite" hidden></div>
           <div class="empty-state" id="empty-state">
             <div class="empty-icon">✳</div>
             <h2>这里是你的内容工作台</h2>
@@ -67,6 +68,7 @@ function renderShell() {
             <h2>这是一个带交互代码的页面</h2>
             <p>为了避免可视化编辑时改坏 Demo 的运行代码，这篇文章暂时保留在代码编辑流程中。</p>
             <a class="button button-quiet" id="source-link" href="#" target="_blank" rel="noreferrer">在 GitHub 上查看源文件 ↗</a>
+            <button class="button button-danger" id="protected-delete-button" type="button">删除这篇内容</button>
           </div>
           <form class="document-form" id="document-form" hidden>
             <div class="form-heading">
@@ -75,7 +77,9 @@ function renderShell() {
                 <h1 id="form-heading">编辑内容</h1>
               </div>
               <div class="form-actions">
+                <button class="button button-quiet" id="preview-button" type="button">预览当前内容</button>
                 <a class="button button-quiet" id="preview-link" href="#" target="_blank" rel="noreferrer" hidden>查看已发布页 ↗</a>
+                <button class="button button-danger" id="delete-button" type="button" hidden>删除文章</button>
                 <button class="button button-primary" id="save-button" type="submit">保存并发布</button>
               </div>
             </div>
@@ -93,6 +97,14 @@ function renderShell() {
           </form>
         </section>
       </section>
+      <dialog class="preview-dialog" id="preview-dialog" aria-labelledby="preview-title">
+        <div class="preview-heading">
+          <div><span class="eyebrow">内容预览</span><h2 id="preview-title"></h2></div>
+          <button class="icon-button" id="close-preview-button" type="button" aria-label="关闭预览">×</button>
+        </div>
+        <p class="preview-description" id="preview-description" hidden></p>
+        <article class="preview-content" id="preview-content"></article>
+      </dialog>
       <footer class="footer">保存后，GitHub 会自动重新构建并发布网站。</footer>
     </main>
   `
@@ -103,6 +115,13 @@ function setStatus(message, kind = '') {
   if (!status) return
   status.textContent = message
   status.dataset.kind = kind
+}
+
+function setWorkspaceNotice(message, kind = '') {
+  const notice = document.querySelector('#workspace-notice')
+  notice.textContent = message
+  notice.dataset.kind = kind
+  notice.hidden = !message
 }
 
 async function request(path, options = {}) {
@@ -149,7 +168,7 @@ function destroyEditor() {
 }
 
 function parseFrontmatter(raw) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/) 
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/)
   if (!match) return { title: '', description: '', body: raw, frontmatter: '' }
 
   const frontmatter = match[1]
@@ -199,9 +218,10 @@ function renderEntries() {
   }
 
   list.innerHTML = entries.map((entry) => `
-    <button class="entry-button ${entry.path === state.selectedPath ? 'is-selected' : ''}" data-path="${escapeHtml(entry.path)}">
+    <button class="entry-button ${entry.path === state.selectedPath ? 'is-selected' : ''}" data-path="${escapeHtml(entry.path)}" type="button" title="点击打开文章进行阅读和编辑">
       <span class="entry-title">${escapeHtml(pathTitle(entry.path))}</span>
       <span class="entry-path">${escapeHtml(entry.path)}</span>
+      <span class="entry-open-label">点击查看与编辑</span>
     </button>
   `).join('')
 
@@ -253,6 +273,94 @@ async function makeEditor(markdown = '') {
   })
 }
 
+function sanitizePreviewHtml(html) {
+  const template = document.createElement('template')
+  template.innerHTML = html
+  template.content.querySelectorAll('script, iframe, object, embed, form, base, meta, link, style, svg').forEach((element) => element.remove())
+
+  template.content.querySelectorAll('*').forEach((element) => {
+    for (const attribute of [...element.attributes]) {
+      const name = attribute.name.toLowerCase()
+      const value = attribute.value.trim()
+      if (name.startsWith('on') || name === 'style' || name === 'srcdoc') {
+        element.removeAttribute(attribute.name)
+      } else if (['href', 'src', 'xlink:href', 'action', 'formaction'].includes(name)
+        && /^(?:javascript|vbscript):|^data:text\/html/i.test(value)) {
+        element.removeAttribute(attribute.name)
+      }
+    }
+    if (element.tagName === 'A' && element.getAttribute('target') === '_blank') {
+      element.setAttribute('rel', 'noopener noreferrer')
+    }
+  })
+
+  return template.innerHTML
+}
+
+function previewCurrentContent() {
+  if (!state.editor) return
+  const title = document.querySelector('#title-input').value.trim() || '未命名内容'
+  const description = document.querySelector('#description-input').value.trim()
+  const previewTitle = document.querySelector('#preview-title')
+  const previewDescription = document.querySelector('#preview-description')
+  const previewContent = document.querySelector('#preview-content')
+  const dialog = document.querySelector('#preview-dialog')
+
+  previewTitle.textContent = title
+  previewDescription.textContent = description
+  previewDescription.hidden = !description
+
+  const template = document.createElement('template')
+  template.innerHTML = sanitizePreviewHtml(state.editor.getHTML())
+  const firstHeading = template.content.firstElementChild
+  if (firstHeading?.tagName === 'H1' && firstHeading.textContent.trim() === title) {
+    firstHeading.remove()
+  }
+  previewContent.innerHTML = template.innerHTML || '<p class="preview-empty">正文还没有内容。</p>'
+  dialog.showModal()
+}
+
+async function deleteSelectedEntry() {
+  const path = state.selectedPath
+  if (!path || state.isNew) return
+
+  const title = pathTitle(path)
+  const hasUnsavedChanges = state.editor
+    && state.document?.body !== undefined
+    && state.editor.getMarkdown() !== state.document.body
+  const confirmed = window.confirm(
+    `确定删除“${title}”吗？${hasUnsavedChanges ? '\n\n当前未保存的修改也会丢弃。' : ''}\n\n这篇内容会从 GitHub 仓库中移除，并在网站重新构建后下线。你可以从 GitHub 提交历史恢复。`,
+  )
+  if (!confirmed) return
+
+  const buttons = [document.querySelector('#delete-button'), document.querySelector('#protected-delete-button')]
+  buttons.forEach((button) => { button.disabled = true })
+  setWorkspaceNotice('正在删除内容…')
+
+  try {
+    await request(`/api/content?path=${encodeURIComponent(path)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ sha: state.document?.sha }),
+    })
+    state.entries = state.entries.filter((entry) => entry.path !== path)
+    state.selectedPath = ''
+    state.document = null
+    state.isNew = false
+    destroyEditor()
+    document.querySelector('#document-form').hidden = true
+    document.querySelector('#protected-state').hidden = true
+    document.querySelector('#empty-state').hidden = false
+    document.querySelector('#empty-state h2').textContent = '内容已删除'
+    document.querySelector('#empty-state p').textContent = 'GitHub 已记录这次更改，网站会在自动构建完成后更新。'
+    renderEntries()
+    setWorkspaceNotice(`“${title}”已删除。`, 'success')
+  } catch (error) {
+    setWorkspaceNotice(error.message, 'error')
+  } finally {
+    buttons.forEach((button) => { button.disabled = false })
+  }
+}
+
 async function showEditor(documentData, isNew = false) {
   state.document = documentData
   state.isNew = isNew
@@ -267,7 +375,9 @@ async function showEditor(documentData, isNew = false) {
   document.querySelector('#slug-row').hidden = !isNew
   document.querySelector('#slug-input').value = ''
   document.querySelector('#preview-link').hidden = isNew
+  document.querySelector('#delete-button').hidden = isNew
   document.querySelector('#save-button').disabled = false
+  setWorkspaceNotice('')
   setStatus('')
   await makeEditor(documentData.body || '')
   renderEntries()
@@ -275,12 +385,21 @@ async function showEditor(documentData, isNew = false) {
 
 async function openEntry(path) {
   try {
-    const { document: documentData } = await request(`/api/content?path=${encodeURIComponent(path)}`)
+    const { document: file } = await request(`/api/content?path=${encodeURIComponent(path)}`)
+    const documentData = {
+      ...parseFrontmatter(file.content || ''),
+      path: file.path,
+      sha: file.sha,
+    }
     if (documentData.body.includes('<script setup')) {
       document.querySelector('#protected-state').hidden = false
       document.querySelector('#empty-state').hidden = true
       document.querySelector('#document-form').hidden = true
       document.querySelector('#source-link').href = `https://github.com/goodmanXyk/goodmanxyk.github.io/blob/main/${path.split('/').map(encodeURIComponent).join('/')}`
+      document.querySelector('#protected-delete-button').hidden = false
+      state.document = documentData
+      state.isNew = false
+      setWorkspaceNotice('')
       destroyEditor()
       state.selectedPath = path
       renderEntries()
@@ -288,6 +407,7 @@ async function openEntry(path) {
     }
 
     await showEditor(documentData)
+    document.querySelector('#protected-delete-button').hidden = true
     const previewPath = path.replace(/\.md$/i, '').replace(/\/index$/, '/')
     document.querySelector('#preview-link').href = `https://goodmanxyk.github.io/${previewPath.replace(/^\//, '')}`
   } catch (error) {
@@ -335,17 +455,18 @@ async function saveDocument(event) {
   setStatus('正在保存并触发网站更新…')
 
   try {
-    await request('/api/content', {
+    const { sha } = await request('/api/content', {
       method: 'PUT',
       body: JSON.stringify({ path, content: markdown, create: state.isNew }),
     })
-    state.document = { path, title, description, body: state.editor.getMarkdown(), frontmatter }
+    state.document = { path, sha, title, description, body: state.editor.getMarkdown(), frontmatter }
     state.isNew = false
     state.selectedPath = path
     document.querySelector('#form-heading').textContent = '编辑内容'
     document.querySelector('#document-kind').textContent = currentSection().label
     document.querySelector('#slug-row').hidden = true
     document.querySelector('#preview-link').hidden = false
+    document.querySelector('#delete-button').hidden = false
     const previewPath = path.replace(/\.md$/i, '').replace(/\/index$/, '/')
     document.querySelector('#preview-link').href = `https://goodmanxyk.github.io/${previewPath.replace(/^\//, '')}`
     setStatus('已保存。网站正在自动重新构建，稍等片刻即可查看。', 'success')
@@ -371,12 +492,25 @@ async function start() {
     document.querySelector('#document-form').hidden = true
     document.querySelector('#protected-state').hidden = true
     document.querySelector('#empty-state').hidden = false
+    document.querySelector('#protected-delete-button').hidden = true
+    document.querySelector('#empty-state h2').textContent = '这里是你的内容工作台'
+    document.querySelector('#empty-state p').textContent = '选择左侧已有文章，或新建一篇内容。正文可以像文档一样编辑，不需要手写 Markdown。'
+    setWorkspaceNotice('')
     destroyEditor()
     renderEntries()
   })
   document.querySelector('#new-button').addEventListener('click', () => { void startNewEntry() })
   document.querySelector('#empty-new-button').addEventListener('click', () => { void startNewEntry() })
   document.querySelector('#document-form').addEventListener('submit', saveDocument)
+  document.querySelector('#preview-button').addEventListener('click', previewCurrentContent)
+  document.querySelector('#close-preview-button').addEventListener('click', () => {
+    document.querySelector('#preview-dialog').close()
+  })
+  document.querySelector('#preview-dialog').addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) event.currentTarget.close()
+  })
+  document.querySelector('#delete-button').addEventListener('click', () => { void deleteSelectedEntry() })
+  document.querySelector('#protected-delete-button').addEventListener('click', () => { void deleteSelectedEntry() })
 
   try {
     const { user } = await request('/api/me')
